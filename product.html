@@ -123,10 +123,8 @@
   const image = params.get("image") || "default.jpg";
   const user = params.get("user") || "";
   const email = params.get("email") || "";
-
-  // معالجة السعر: إزالة نقاط آلاف لتحويل السعر إلى رقم صحيح
   let rawPrice = params.get("price") || "0";
-  rawPrice = rawPrice.replace(/\./g, ""); // حذف كل النقاط (فواصل الآلاف)
+  rawPrice = rawPrice.replace(/\./g, ""); 
   const originalPrice = Number(rawPrice);
 
   document.getElementById("productImage").src = image;
