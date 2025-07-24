@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دفع المنتج عبر خزينة الفريق - بنك باور</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: #161b22;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    h2 {
+      color: #58a6ff;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .product-info {
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .product-info img {
+      width: 100%;
+      max-height: 200px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #30363d;
+      object-fit: cover;
+    }
+    .product-info h3 {
+      margin-bottom: 5px;
+      color: #58a6ff;
+    }
+    .product-info p {
+      font-size: 14px;
+      color: #8b949e;
+      margin-bottom: 10px;
+    }
+    .price-box {
+      font-weight: bold;
+      color: #58ff8c;
+      font-size: 18px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: #58a6ff;
+      color: #0d1117;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #3a6ed8;
+    }
+    #paymentMessage {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    #paymentMessage.success {
+      color: #58ff8c;
+    }
+    #paymentMessage.error {
+      color: #ff5858;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>الدفع من خزينة الفريق</h2>
+
+    <div class="product-info">
+      <img id="productImage" src="" alt="صورة المنتج" />
+      <h3 id="productName">اسم المنتج</h3>
+      <p id="productDesc">وصف المنتج</p>
+      <div class="price-box">السعر بعد الخصم: <span id="priceDisplay"></span> دينار</div>
+    </div>
+
+    <button onclick="processTeamPayment()">تأكيد الدفع عبر خزينة الفريق</button>
+    <div id="paymentMessage"></div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const productImage = params.get("image") || "default.jpg";
+  const productName = params.get("name") || "منتج غير معروف";
+  const productDesc = params.get("desc") || "لا يوجد وصف لهذا المنتج.";
+  const userName = params.get("user") || "";
+  const userEmail = params.get("email") || "";
+  const basePrice = parseInt(params.get("price")) || 25000;
+  const finalPrice = basePrice - 5000;
+
+  document.getElementById("productImage").src = productImage;
+  document.getElementById("productName").textContent = productName;
+  document.getElementById("productDesc").textContent = productDesc;
+  document.getElementById("priceDisplay").textContent = finalPrice;
+
+  function processTeamPayment() {
+    let purchases = JSON.parse(localStorage.getItem("purchases") || "[]");
+
+    purchases.push({
+      product: {
+        name: productName,
+        image: productImage,
+        description: productDesc
+      },
+      user: {
+        name: userName,
+        email: userEmail
+      },
+      payment: {
+        method: "خزينة الفريق",
+        priceBefore: basePrice,
+        priceAfter: finalPrice
+      },
+      date: new Date().toISOString()
+    });
+
+    localStorage.setItem("purchases", JSON.stringify(purchases));
+
+    const msg = document.getElementById("paymentMessage");
+    msg.textContent = "✅ تمّ الدفع بنجاح عبر خزينة الفريق!";
+    msg.className = "success";
+  }
+</script>
+
+</body>
+</html>
