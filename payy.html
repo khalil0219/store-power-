@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>دفع المنتج - بنك باور</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #0d1117;
+      color: #c9d1d9;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: #161b22;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    h2 {
+      color: #58a6ff;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .product-info {
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .product-info img {
+      width: 100%;
+      max-height: 200px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #30363d;
+      object-fit: cover;
+    }
+    .product-info h3 {
+      margin-bottom: 5px;
+      color: #58a6ff;
+    }
+    .product-info p {
+      font-size: 14px;
+      color: #8b949e;
+      margin-bottom: 20px;
+    }
+    form input, form button {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+    }
+    form input {
+      background-color: #21262d;
+      color: #c9d1d9;
+    }
+    form input:focus {
+      background-color: #2b3139;
+      outline: none;
+    }
+    form button {
+      background-color: #58a6ff;
+      color: #0d1117;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      border-radius: 8px;
+    }
+    form button:hover {
+      background-color: #3a6ed8;
+    }
+    #paymentMessage {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    #paymentMessage.success {
+      color: #58ff8c;
+    }
+    #paymentMessage.error {
+      color: #ff5858;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>تفاصيل الدفع</h2>
+
+    <div class="product-info">
+      <img id="productImage" src="" alt="صورة المنتج" />
+      <h3 id="productName">اسم المنتج</h3>
+      <p id="productDesc">وصف المنتج</p>
+    </div>
+
+    <form id="paymentForm">
+      <input type="text" id="cardName" placeholder="اسم حامل البطاقة" required />
+      <input type="text" id="cardNumber" placeholder="رقم البطاقة البنكية (16 رقم)" maxlength="16" required />
+      <input type="month" id="expiryDate" placeholder="تاريخ انتهاء البطاقة" required />
+      <input type="text" id="cvv" placeholder="CVV (3 أرقام)" maxlength="3" required />
+      <button type="submit">تأكيد الدفع</button>
+    </form>
+
+    <div id="paymentMessage"></div>
+  </div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const productImage = params.get("image") || "default.jpg";
+  const productName = params.get("name") || "منتج غير معروف";
+  const productDesc = params.get("desc") || "لا يوجد وصف لهذا المنتج.";
+  const userName = params.get("user") || "";
+  const userEmail = params.get("email") || "";
+
+  document.getElementById("productImage").src = productImage;
+  document.getElementById("productName").textContent = productName;
+  document.getElementById("productDesc").textContent = productDesc;
+
+  const paymentForm = document.getElementById("paymentForm");
+  const paymentMessage = document.getElementById("paymentMessage");
+
+  paymentForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const cardName = document.getElementById("cardName").value.trim();
+    const cardNumber = document.getElementById("cardNumber").value.trim();
+    const expiryDate = document.getElementById("expiryDate").value.trim();
+    const cvv = document.getElementById("cvv").value.trim();
+
+    if (
+      cardName === "" ||
+      !/^\d{16}$/.test(cardNumber) ||
+      expiryDate === "" ||
+      !/^\d{3}$/.test(cvv)
+    ) {
+      paymentMessage.textContent = "❌ الرجاء إدخال بيانات صحيحة للبطاقة البنكية.";
+      paymentMessage.className = "error";
+      return;
+    }
+
+    let purchases = JSON.parse(localStorage.getItem("purchases") || "[]");
+
+    purchases.push({
+      product: {
+        name: productName,
+        image: productImage,
+        description: productDesc
+      },
+      user: {
+        name: userName,
+        email: userEmail
+      },
+      payment: {
+        cardName,
+        cardNumber,
+        expiryDate,
+        cvv
+      },
+      date: new Date().toISOString()
+    });
+
+    localStorage.setItem("purchases", JSON.stringify(purchases));
+
+    paymentMessage.textContent = "✅ تمّت عملية الدفع بنجاح! شكراً لثقتك.";
+    paymentMessage.className = "success";
+
+    paymentForm.reset();
+  });
+</script>
+
+</body>
+</html>
